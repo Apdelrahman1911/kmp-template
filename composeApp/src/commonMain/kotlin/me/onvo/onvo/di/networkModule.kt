@@ -4,16 +4,17 @@ import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import me.onvo.onvo.core.config.AppConfig
+import me.onvo.onvo.core.network.HttpClientFactory
 import me.onvo.onvo.data.network.ApiService
 import me.onvo.onvo.data.network.ApiServiceImpl
-import me.onvo.onvo.data.network.HttpClientFactory
-import org.koin.core.module.Module
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.logging.*
 
-val networkModule: Module = module {
+val networkModule = module {
 
-    // 1️⃣ Provide a shared Json instance
     single<Json> {
         Json {
             ignoreUnknownKeys = true
@@ -23,26 +24,30 @@ val networkModule: Module = module {
         }
     }
 
-    // 2️⃣ Provide HttpClient — use injected Json for content negotiation
+    // register baseUrl as a named String
+    single(named("baseUrl")) { AppConfig.BASE_URL }
+
     single<HttpClient> {
-        val json = get<Json>()
-        HttpClientFactory().createClient().config {
-            install(ContentNegotiation) {
-                json(json)
+        HttpClientFactory().create().config {
+            install(ContentNegotiation) { json(get()) }
+            if (AppConfig.ENABLE_LOGGING) {
+                install(Logging) {
+                    logger = Logger.SIMPLE
+                    level = LogLevel.INFO
+                }
+            }
+            install(HttpTimeout) {
+                requestTimeoutMillis = AppConfig.TIMEOUT_MILLIS
+            }
+            defaultRequest {
+                url(AppConfig.BASE_URL)
             }
         }
     }
 
-    // 3️⃣ Provide baseUrl
-    single(named("baseUrl")) { "https://yamimanga.me/" }
-
-    // 4️⃣ ApiServiceImpl uses injected HttpClient and baseUrl
-    single<ApiService> { ApiServiceImpl(
-        get(), get(named("baseUrl")),
-        json = get()                  // Json instance
-
-        ) }
-
-    // 5️⃣ (Optional) If you have repositories depending on ApiService
-    // single<ItemsRepository> { ItemsRepositoryImpl(get()) }
+    single<ApiService> {
+        // get() -> HttpClient, get(named("baseUrl")) -> String, get() -> Json
+        ApiServiceImpl(get(), get(named("baseUrl")), json = get())
+    }
 }
+

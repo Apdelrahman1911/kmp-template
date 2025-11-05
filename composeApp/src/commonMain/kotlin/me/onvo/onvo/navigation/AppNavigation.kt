@@ -14,7 +14,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import me.onvo.onvo.presentation.ui.SourcesScreen
 import me.onvo.onvo.presentation.viewmodel.AuthViewModel
+import me.onvo.onvo.presentation.viewmodel.SourcesViewModel
 import me.onvo.onvo.test.CreatePostScreen
 import me.onvo.onvo.test.DiscoveryScreen
 import me.onvo.onvo.test.HomeScreen
@@ -32,6 +34,8 @@ fun AppNavigation(
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
+        val sourcesViewModel: SourcesViewModel = koinInject()
+
 //    val authViewModel: AuthViewModel = koinInject()
     val isUserLoggedIn by authViewModel.isLoggedIn.collectAsState()
     val startDestination = remember(isUserLoggedIn) {if (isUserLoggedIn) Screen.Home else Screen.Login}
@@ -73,11 +77,15 @@ fun AppNavigation(
 
             // Home Screen
             composable<Screen.Home> {
-                HomeScreen(
-                    onUserClick = { userId ->
-                        navController.navigate(Screen.UserProfile(userId))
-                    }
+
+                SourcesScreen(
+                    sourcesViewModel
                 )
+//                HomeScreen(
+//                    onUserClick = { userId ->
+//                        navController.navigate(Screen.UserProfile(userId))
+//                    }
+//                )
             }
 
             // Search Screen
