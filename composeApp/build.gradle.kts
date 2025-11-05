@@ -55,6 +55,8 @@ kotlin {
 
             implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.1")
             implementation("org.jetbrains.compose.material:material-icons-core:1.7.3")
+            implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
+
             // Existing dependencies
 //            implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
@@ -64,6 +66,8 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
             implementation("io.insert-koin:koin-android:4.1.1") // koin-core (multiplatform)
+            implementation("androidx.core:core-splashscreen:1.0.1")
+
 
         }
         iosMain.dependencies {

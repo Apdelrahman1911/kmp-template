@@ -179,38 +179,38 @@ fun ProfileScreen() {
 }
 
 // Settings Screen
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SettingsScreen(
-    onSettingClick: (String) -> Unit,
-    onLogout: () -> Unit
-) {
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Settings") })
-        }
-    ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            items(listOf("Account", "Privacy", "Notifications", "Appearance", "Help")) { setting ->
-                SettingItem(
-                    title = setting,
-                    onClick = { onSettingClick(setting) }
-                )
-            }
-            item {
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
-                SettingItem(
-                    title = "Logout",
-                    onClick = onLogout
-                )
-            }
-        }
-    }
-}
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun SettingsScreen(
+//    onSettingClick: (String) -> Unit,
+//    onLogout: () -> Unit
+//) {
+//    Scaffold(
+//        topBar = {
+//            TopAppBar(title = { Text("Settings") })
+//        }
+//    ) { padding ->
+//        LazyColumn(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(padding)
+//        ) {
+//            items(listOf("Account", "Privacy", "Notifications", "Appearance", "Help")) { setting ->
+//                SettingItem(
+//                    title = setting,
+//                    onClick = { onSettingClick(setting) }
+//                )
+//            }
+//            item {
+//                Divider(modifier = Modifier.padding(vertical = 8.dp))
+//                SettingItem(
+//                    title = "Logout",
+//                    onClick = onLogout
+//                )
+//            }
+//        }
+//    }
+//}
 
 // User Profile Screen
 @OptIn(ExperimentalMaterial3Api::class)
