@@ -10,7 +10,8 @@ fun initKoin() {
             repositoryModule,
             useCaseModule,
             appModule,
-//            viewModelModule
+            dataStoreModule,
+            viewModelModule
         )
     }
 }

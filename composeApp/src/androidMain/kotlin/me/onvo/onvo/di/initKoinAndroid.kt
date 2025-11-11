@@ -11,7 +11,9 @@ fun initKoinAndroid(app: Application) {
             networkModule,
             repositoryModule,
             useCaseModule,
-            appModule
+            appModule,
+            dataStoreModule,
+            viewModelModule
         )
     }
 }

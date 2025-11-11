@@ -9,33 +9,44 @@ import me.onvo.onvo.presentation.viewmodel.AuthViewModel
 import me.onvo.onvo.presentation.viewmodel.SourcesViewModel
 import org.koin.compose.koinInject
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import me.onvo.onvo.theme.AppTheme
 import me.onvo.onvo.theme.ThemeManager
 import me.onvo.onvo.theme.ThemeMode
+import me.onvo.onvo.theme.ThemeViewModel
 import me.onvo.onvo.theme.splash_screen.SplashScreen
+import me.onvo.onvo.theme.splash_screen.shouldShowSplash
 
 
 @Composable
 fun App() {
-    val themeManager: ThemeManager = koinInject()
-    val themeMode by themeManager.themeMode.collectAsState()
-    val isSystemInDark = isSystemInDarkTheme()
 
-    var showSplash by remember { mutableStateOf(true) }
 
-    val darkTheme = when (themeMode) {
+    var showSplash by remember { mutableStateOf(shouldShowSplash) }
+
+
+    val themeViewModel: ThemeViewModel = koinInject()
+    val themeMode by themeViewModel.themeMode.collectAsState()
+    val isDarkMode by themeViewModel.isDarkMode.collectAsState()
+    val systemInDarkTheme = isSystemInDarkTheme()
+
+    // Determine if dark theme should be used
+    val useDarkTheme = when (themeMode) {
         ThemeMode.LIGHT -> false
         ThemeMode.DARK -> true
-        ThemeMode.SYSTEM -> isSystemInDark
+        ThemeMode.SYSTEM -> systemInDarkTheme
     }
 
-    AppTheme(darkTheme = darkTheme) {
+    MaterialTheme(
+        colorScheme = if (useDarkTheme) darkColorScheme() else lightColorScheme()
+    ) {
         if (showSplash) {
             SplashScreen(
                 onSplashFinished = { showSplash = false }
             )
         } else {
-            AppNavigation()
+            AppNavigation(themeViewModel = themeViewModel)
         }
     }
 }

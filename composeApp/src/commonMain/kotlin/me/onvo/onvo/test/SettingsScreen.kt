@@ -1,6 +1,7 @@
 package me.onvo.onvo.test
 
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,20 +13,27 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import co.touchlab.kermit.Logger
 import me.onvo.onvo.theme.ThemeManager
 import me.onvo.onvo.theme.ThemeMode
+import me.onvo.onvo.theme.ThemeViewModel
+import onvo.composeapp.generated.resources.Res
+import onvo.composeapp.generated.resources.compose_multiplatform
+import org.jetbrains.compose.resources.painterResource
 
 import org.koin.compose.koinInject
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
+    themeViewModel: ThemeViewModel,
     onSettingClick: (String) -> Unit,
     onLogout: () -> Unit
 ) {
-    val themeManager: ThemeManager = koinInject()
-    val currentTheme by themeManager.themeMode.collectAsState()
+    val currentTheme by themeViewModel.themeMode.collectAsState()
     var showThemeDialog by remember { mutableStateOf(false) }
+
+    Logger.a("SettingsScreen") { "hi loggg 111111" }
+
 
     Scaffold(
         topBar = {
@@ -37,6 +45,11 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
+
+            item {
+                Image(painterResource(Res.drawable.compose_multiplatform), null)
+
+            }
             // Theme Setting
             item {
                 ThemeSettingItem(
@@ -71,7 +84,8 @@ fun SettingsScreen(
         ThemeSelectionDialog(
             currentTheme = currentTheme,
             onThemeSelected = { theme ->
-                themeManager.setThemeMode(theme)
+                themeViewModel.setThemeMode(theme)
+//                themeManager.setThemeMode(theme)
                 showThemeDialog = false
             },
             onDismiss = { showThemeDialog = false }

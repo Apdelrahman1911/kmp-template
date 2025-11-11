@@ -26,11 +26,13 @@ import me.onvo.onvo.test.SearchScreen
 import me.onvo.onvo.test.SettingsDetailScreen
 import me.onvo.onvo.test.SettingsScreen
 import me.onvo.onvo.test.UserProfileScreen
+import me.onvo.onvo.theme.ThemeViewModel
 import org.koin.compose.koinInject
 
 @Composable
 fun AppNavigation(
     authViewModel: AuthViewModel = koinInject(),
+    themeViewModel: ThemeViewModel,
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
@@ -114,6 +116,7 @@ fun AppNavigation(
             // Settings Screen
             composable<Screen.Settings> {
                 SettingsScreen(
+                    themeViewModel = themeViewModel,
                     onSettingClick = { settingType ->
                         navController.navigate(Screen.SettingsDetail(settingType))
                     },

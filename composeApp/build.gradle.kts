@@ -17,7 +17,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -27,9 +27,15 @@ kotlin {
             isStatic = true
         }
     }
-    
+//    macosX64("native") { // on macOS
+        // linuxX64("native") { // on Linux
+//         mingwX64("native") {// on Windows
+//        binaries {
+//            executable()
+//        }
+//    }
     jvm()
-    
+
     sourceSets {
 
         commonMain.dependencies {
@@ -47,7 +53,6 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.ktor.client.logging)
             implementation(libs.kotlinx.serialization.json)
-
             implementation(libs.coil.network.ktor)
 
             implementation("io.insert-koin:koin-core:4.1.1") // koin-core (multiplatform)
@@ -56,10 +61,11 @@ kotlin {
             implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.1")
             implementation("org.jetbrains.compose.material:material-icons-core:1.7.3")
             implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
+            // DataStore library
+            implementation("androidx.datastore:datastore:1.1.7")
+            implementation("androidx.datastore:datastore-preferences:1.1.7")
 
-            // Existing dependencies
-//            implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
-
+            implementation("co.touchlab:kermit:2.0.4")
         }
         androidMain.dependencies {
             implementation(compose.preview)
