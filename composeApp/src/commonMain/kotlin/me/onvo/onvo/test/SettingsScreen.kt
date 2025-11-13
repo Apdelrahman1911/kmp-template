@@ -1,5 +1,5 @@
+// File: commonMain/kotlin/me/onvo/onvo/test/SettingsScreen.kt
 package me.onvo.onvo.test
-
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -21,19 +21,18 @@ import onvo.composeapp.generated.resources.Res
 import onvo.composeapp.generated.resources.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
 
-import org.koin.compose.koinInject
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     themeViewModel: ThemeViewModel,
     onSettingClick: (String) -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onChangePassword: () -> Unit
 ) {
     val currentTheme by themeViewModel.themeMode.collectAsState()
     var showThemeDialog by remember { mutableStateOf(false) }
 
     Logger.a("SettingsScreen") { "hi loggg 111111" }
-
 
     Scaffold(
         topBar = {
@@ -45,11 +44,10 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-
             item {
                 Image(painterResource(Res.drawable.compose_multiplatform), null)
-
             }
+
             // Theme Setting
             item {
                 ThemeSettingItem(
@@ -59,10 +57,31 @@ fun SettingsScreen(
             }
 
             item {
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             }
 
-            // Other Settings
+            // Security Section
+            item {
+                SectionHeader(title = "Security")
+            }
+
+            item {
+                SettingItemWithIcon(
+                    title = "Change Password",
+                    icon = Icons.Default.Lock,
+                    onClick = onChangePassword
+                )
+            }
+
+            item {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            }
+
+            // General Settings Section
+            item {
+                SectionHeader(title = "General")
+            }
+
             items(listOf("Account", "Privacy", "Notifications", "Appearance", "Help")) { setting ->
                 SettingItem(
                     title = setting,
@@ -71,9 +90,14 @@ fun SettingsScreen(
             }
 
             item {
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
-                SettingItem(
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            }
+
+            item {
+                SettingItemWithIcon(
                     title = "Logout",
+                    icon = Icons.Default.ExitToApp,
+                    textColor = MaterialTheme.colorScheme.error,
                     onClick = onLogout
                 )
             }
@@ -85,12 +109,21 @@ fun SettingsScreen(
             currentTheme = currentTheme,
             onThemeSelected = { theme ->
                 themeViewModel.setThemeMode(theme)
-//                themeManager.setThemeMode(theme)
                 showThemeDialog = false
             },
             onDismiss = { showThemeDialog = false }
         )
     }
+}
+
+@Composable
+private fun SectionHeader(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+    )
 }
 
 @Composable
@@ -117,6 +150,31 @@ private fun ThemeSettingItem(
                     ThemeMode.SYSTEM -> Icons.Default.Brightness4
                 },
                 contentDescription = "Theme"
+            )
+        },
+        modifier = Modifier.clickable(onClick = onClick)
+    )
+}
+
+@Composable
+private fun SettingItemWithIcon(
+    title: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    textColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onSurface,
+    onClick: () -> Unit
+) {
+    ListItem(
+        headlineContent = {
+            Text(
+                text = title,
+                color = textColor
+            )
+        },
+        leadingContent = {
+            Icon(
+                imageVector = icon,
+                contentDescription = title,
+                tint = textColor
             )
         },
         modifier = Modifier.clickable(onClick = onClick)

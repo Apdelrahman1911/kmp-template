@@ -11,7 +11,11 @@ fun initKoin() {
             useCaseModule,
             appModule,
             dataStoreModule,
-            viewModelModule
+            viewModelModule,
+            authModule,
+            platformModule,
+            profileModule,
+
         )
     }
 }

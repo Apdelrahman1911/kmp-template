@@ -1,5 +1,5 @@
+// File: commonMain/kotlin/me/onvo/onvo/navigation/Screen.kt
 package me.onvo.onvo.navigation
-
 
 import kotlinx.serialization.Serializable
 
@@ -7,6 +7,12 @@ import kotlinx.serialization.Serializable
 sealed interface Screen {
     @Serializable
     data object Login : Screen
+
+    @Serializable
+    data object ForgotPassword : Screen
+
+    @Serializable
+    data object ChangePassword : Screen
 
     @Serializable
     data object Home : Screen

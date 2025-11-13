@@ -15,7 +15,7 @@ class ApiServiceImpl(
     private val json: Json
 ) : ApiService {
     override suspend fun fetchItems() : List<Source> {
-        val raw = client.get("${baseUrl}source").bodyAsText()
+        val raw = client.get("https://yamimanga.me/source").bodyAsText()
         return try {
             val items = json.decodeFromString(ListSerializer(Source.Serializer), raw)
             items

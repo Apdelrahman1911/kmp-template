@@ -33,14 +33,21 @@ val networkModule = module {
             if (AppConfig.ENABLE_LOGGING) {
                 install(Logging) {
                     logger = Logger.SIMPLE
-                    level = LogLevel.INFO
+                    level = LogLevel.ALL
                 }
             }
             install(HttpTimeout) {
                 requestTimeoutMillis = AppConfig.TIMEOUT_MILLIS
             }
+            install(HttpRedirect) {
+                checkHttpMethod = false // allows POST redirects
+                allowHttpsDowngrade = false
+            }
             defaultRequest {
                 url(AppConfig.BASE_URL)
+                headers.append("Content-Type", "application/json")
+                // Optional: Accept JSON as well
+                headers.append("Accept", "application/json")
             }
         }
     }

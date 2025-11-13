@@ -8,6 +8,5 @@ import org.koin.dsl.module
 
 val appModule = module {
     single { ThemeManager() }
-    single { AuthViewModel() }
     single { SourcesViewModel(get()) }
 }

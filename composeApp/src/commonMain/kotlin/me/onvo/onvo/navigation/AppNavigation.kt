@@ -1,52 +1,83 @@
+// FILE: commonMain/kotlin/me/onvo/onvo/navigation/AppNavigation.kt
 package me.onvo.onvo.navigation
 
-
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import coil3.compose.AsyncImage
+import me.onvo.onvo.presentation.ui.LoginScreen
+import me.onvo.onvo.presentation.ui.PasswordResetScreen
+import me.onvo.onvo.presentation.ui.ProfileScreen
 import me.onvo.onvo.presentation.ui.SourcesScreen
 import me.onvo.onvo.presentation.viewmodel.AuthViewModel
+import me.onvo.onvo.presentation.viewmodel.PasswordResetViewModel
 import me.onvo.onvo.presentation.viewmodel.SourcesViewModel
-import me.onvo.onvo.test.CreatePostScreen
-import me.onvo.onvo.test.DiscoveryScreen
-import me.onvo.onvo.test.HomeScreen
-import me.onvo.onvo.test.LoginScreen
-import me.onvo.onvo.test.ProfileScreen
-import me.onvo.onvo.test.SearchScreen
-import me.onvo.onvo.test.SettingsDetailScreen
-import me.onvo.onvo.test.SettingsScreen
-import me.onvo.onvo.test.UserProfileScreen
+import me.onvo.onvo.test.*
 import me.onvo.onvo.theme.ThemeViewModel
 import org.koin.compose.koinInject
 
 @Composable
 fun AppNavigation(
     authViewModel: AuthViewModel = koinInject(),
+    passwordResetViewModel: PasswordResetViewModel = koinInject(),
     themeViewModel: ThemeViewModel,
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
-        val sourcesViewModel: SourcesViewModel = koinInject()
+    val sourcesViewModel: SourcesViewModel = koinInject()
 
-//    val authViewModel: AuthViewModel = koinInject()
     val isUserLoggedIn by authViewModel.isLoggedIn.collectAsState()
-    val startDestination = remember(isUserLoggedIn) {if (isUserLoggedIn) Screen.Home else Screen.Login}
+    val authState by authViewModel.authState.collectAsState()
+    val currentUser by authViewModel.currentUser.collectAsState()
+    val isInitialized by authViewModel.isInitialized.collectAsState()
+
+    val isPasswordResetLoggedIn by passwordResetViewModel.isLoggedIn.collectAsState()
+
+    // Show loading screen while initializing
+    if (!isInitialized) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                CircularProgressIndicator()
+                Text(
+                    text = "Initializing...",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+        return
+    }
+
+    val startDestination = if (isUserLoggedIn) Screen.Home else Screen.Login
 
     Scaffold(
+        // Remove default content padding - we'll handle it manually
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
-            println("kdjfksdfsdsdaasd ============== $isUserLoggedIn")
             if (isUserLoggedIn) {
-                BottomNavigationBar(navController = navController)
+                BottomNavigationBar(
+                    navController = navController,
+                    currentUserImage = currentUser?.image
+                )
             }
         },
         floatingActionButton = {
@@ -59,38 +90,78 @@ fun AppNavigation(
             }
         }
     ) { paddingValues ->
+        // Apply padding values from Scaffold
         NavHost(
             navController = navController,
             startDestination = startDestination,
             modifier = modifier.padding(paddingValues)
         ) {
-            // Login Screen
             composable<Screen.Login> {
                 LoginScreen(
+                    viewModel = authViewModel,
                     onLoginSuccess = {
                         navController.navigate(Screen.Home) {
-
                             popUpTo(Screen.Login) { inclusive = true }
-                            authViewModel.login()
                         }
+                    },
+                    onForgotPassword = {
+                        passwordResetViewModel.reset()
+                        navController.navigate(Screen.ForgotPassword)
                     }
                 )
             }
 
-            // Home Screen
-            composable<Screen.Home> {
-
-                SourcesScreen(
-                    sourcesViewModel
+            composable<Screen.ForgotPassword> {
+                PasswordResetScreen(
+                    viewModel = passwordResetViewModel,
+                    onBackClick = {
+                        passwordResetViewModel.reset()
+                        navController.navigateUp()
+                    },
+                    onPasswordChanged = { isFromSettings ->
+                        if (!isFromSettings && isPasswordResetLoggedIn) {
+                            authViewModel.refreshSession()
+                            navController.navigate(Screen.Home) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        } else {
+                            passwordResetViewModel.reset()
+                            navController.navigate(Screen.Login) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
+                    },
+                    isFromSettings = false,
+                    prefilledUserId = null
                 )
-//                HomeScreen(
-//                    onUserClick = { userId ->
-//                        navController.navigate(Screen.UserProfile(userId))
-//                    }
-//                )
             }
 
-            // Search Screen
+            composable<Screen.ChangePassword> {
+                LaunchedEffect(Unit) {
+                    passwordResetViewModel.reset()
+                }
+
+                PasswordResetScreen(
+                    viewModel = passwordResetViewModel,
+                    onBackClick = {
+                        passwordResetViewModel.reset()
+                        navController.navigateUp()
+                    },
+                    onPasswordChanged = { isFromSettings ->
+                        if (isFromSettings) {
+                            passwordResetViewModel.reset()
+                            navController.navigateUp()
+                        }
+                    },
+                    isFromSettings = true,
+                    prefilledUserId = authState.userId
+                )
+            }
+
+            composable<Screen.Home> {
+                SourcesScreen(sourcesViewModel)
+            }
+
             composable<Screen.Search> {
                 SearchScreen(
                     onUserClick = { userId ->
@@ -99,7 +170,6 @@ fun AppNavigation(
                 )
             }
 
-            // Discovery Screen
             composable<Screen.Discovery> {
                 DiscoveryScreen(
                     onUserClick = { userId ->
@@ -108,19 +178,21 @@ fun AppNavigation(
                 )
             }
 
-            // Profile Screen (Current User)
             composable<Screen.Profile> {
                 ProfileScreen()
             }
 
-            // Settings Screen
             composable<Screen.Settings> {
                 SettingsScreen(
                     themeViewModel = themeViewModel,
                     onSettingClick = { settingType ->
                         navController.navigate(Screen.SettingsDetail(settingType))
                     },
+                    onChangePassword = {
+                        navController.navigate(Screen.ChangePassword)
+                    },
                     onLogout = {
+                        authViewModel.logout()
                         navController.navigate(Screen.Login) {
                             popUpTo(0) { inclusive = true }
                         }
@@ -128,7 +200,6 @@ fun AppNavigation(
                 )
             }
 
-            // User Profile Screen (Other Users)
             composable<Screen.UserProfile> { backStackEntry ->
                 val userProfile: Screen.UserProfile = backStackEntry.toRoute()
                 UserProfileScreen(
@@ -137,7 +208,6 @@ fun AppNavigation(
                 )
             }
 
-            // Settings Detail Screen
             composable<Screen.SettingsDetail> { backStackEntry ->
                 val settingsDetail: Screen.SettingsDetail = backStackEntry.toRoute()
                 SettingsDetailScreen(
@@ -146,7 +216,6 @@ fun AppNavigation(
                 )
             }
 
-            // Create Post Screen
             composable<Screen.CreatePost> {
                 CreatePostScreen(
                     onPostCreated = { navController.navigateUp() },
@@ -164,22 +233,41 @@ private fun shouldShowFab(navController: NavHostController): Boolean {
 }
 
 @Composable
-private fun BottomNavigationBar(navController: NavHostController) {
+private fun BottomNavigationBar(
+    navController: NavHostController,
+    currentUserImage: String?
+) {
     val items = listOf(
-        BottomNavItem("Home", Icons.Default.Home, Screen.Home),
-        BottomNavItem("Search", Icons.Default.Search, Screen.Search),
-        BottomNavItem("Discovery", Icons.Default.LocationOn, Screen.Discovery),
-        BottomNavItem("Profile", Icons.Default.Person, Screen.Profile),
-        BottomNavItem("Settings", Icons.Default.Settings, Screen.Settings)
+        BottomNavItem("Home", Icons.Default.Home, Screen.Home, false),
+        BottomNavItem("Search", Icons.Default.Search, Screen.Search, false),
+        BottomNavItem("Discovery", Icons.Default.LocationOn, Screen.Discovery, false),
+        BottomNavItem("Profile", Icons.Default.Person, Screen.Profile, true),
+        BottomNavItem("Settings", Icons.Default.Settings, Screen.Settings, false)
     )
 
-    NavigationBar {
+    NavigationBar(
+        // Remove extra padding by setting window insets to 0
+        windowInsets = WindowInsets(0, 0, 0, 0)
+    ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
 
         items.forEach { item ->
             NavigationBarItem(
-                icon = { Icon(item.icon, contentDescription = item.label) },
+                icon = {
+                    if (item.useProfileImage && !currentUserImage.isNullOrEmpty()) {
+                        AsyncImage(
+                            model = currentUserImage,
+                            contentDescription = item.label,
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Icon(item.icon, contentDescription = item.label)
+                    }
+                },
                 label = { Text(item.label) },
                 selected = currentRoute?.contains(item.screen::class.simpleName ?: "") == true,
                 onClick = {
@@ -197,5 +285,6 @@ private fun BottomNavigationBar(navController: NavHostController) {
 private data class BottomNavItem(
     val label: String,
     val icon: androidx.compose.ui.graphics.vector.ImageVector,
-    val screen: Screen
+    val screen: Screen,
+    val useProfileImage: Boolean = false
 )

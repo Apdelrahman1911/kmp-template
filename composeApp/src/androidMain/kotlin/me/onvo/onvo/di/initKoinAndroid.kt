@@ -13,7 +13,10 @@ fun initKoinAndroid(app: Application) {
             useCaseModule,
             appModule,
             dataStoreModule,
-            viewModelModule
+            viewModelModule,
+            authModule,
+            platformModule,
+            profileModule,
         )
     }
 }

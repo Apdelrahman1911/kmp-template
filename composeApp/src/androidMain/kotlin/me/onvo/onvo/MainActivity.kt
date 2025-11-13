@@ -1,6 +1,7 @@
 package me.onvo.onvo
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,12 +16,9 @@ import org.jetbrains.compose.resources.painterResource
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Install splash screen (native Android 12+ splash)
         initPreferencesDataStore(applicationContext)
 
         val splashScreen = installSplashScreen()
-
-        // Keep splash screen visible while app is loading
         var keepSplashScreen = true
         splashScreen.setKeepOnScreenCondition { keepSplashScreen }
 
@@ -28,21 +26,17 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-                Image(painterResource(Res.drawable.compose_multiplatform), null)
-
-
-//            App()
+            Log.d("MainActivityasdasdasd", "setContent333")
+            App()
         }
 
-        // Remove splash after a delay
         window.decorView.post {
             keepSplashScreen = false
         }
     }
 }
-
-@Preview
-@Composable
-fun AppAndroidPreview() {
-    App()
-}
+//@Preview
+//@Composable
+//fun AppAndroidPreview() {
+//    App()
+//}

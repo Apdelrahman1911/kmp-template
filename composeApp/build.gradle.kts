@@ -66,6 +66,10 @@ kotlin {
             implementation("androidx.datastore:datastore-preferences:1.1.7")
 
             implementation("co.touchlab:kermit:2.0.4")
+
+            implementation("io.coil-kt.coil3:coil-compose:3.3.0")
+            implementation("io.coil-kt.coil3:coil-network-ktor3:3.3.0")
+
         }
         androidMain.dependencies {
             implementation(compose.preview)

@@ -1,5 +1,5 @@
+// File: commonMain/kotlin/me/onvo/onvo/test/screens.kt
 package me.onvo.onvo.test
-
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -12,52 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-
-// Login Screen
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun LoginScreen(
-    onLoginSuccess: () -> Unit
-) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Login") })
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = onLoginSuccess,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Login")
-            }
-        }
-    }
-}
+import me.onvo.onvo.presentation.ui.ProfileScreen
 
 // Home Screen
 @OptIn(ExperimentalMaterial3Api::class)
@@ -154,96 +109,19 @@ fun DiscoveryScreen(
     }
 }
 
-// Profile Screen
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ProfileScreen() {
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("My Profile") })
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
-        ) {
-            Text("Current User Profile", style = MaterialTheme.typography.headlineMedium)
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Email: user@example.com")
-            Text("Posts: 42")
-            Text("Followers: 1.2K")
-        }
-    }
-}
-
-// Settings Screen
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//fun SettingsScreen(
-//    onSettingClick: (String) -> Unit,
-//    onLogout: () -> Unit
-//) {
-//    Scaffold(
-//        topBar = {
-//            TopAppBar(title = { Text("Settings") })
-//        }
-//    ) { padding ->
-//        LazyColumn(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .padding(padding)
-//        ) {
-//            items(listOf("Account", "Privacy", "Notifications", "Appearance", "Help")) { setting ->
-//                SettingItem(
-//                    title = setting,
-//                    onClick = { onSettingClick(setting) }
-//                )
-//            }
-//            item {
-//                Divider(modifier = Modifier.padding(vertical = 8.dp))
-//                SettingItem(
-//                    title = "Logout",
-//                    onClick = onLogout
-//                )
-//            }
-//        }
-//    }
-//}
-
-// User Profile Screen
-@OptIn(ExperimentalMaterial3Api::class)
+// User Profile Screen (Other Users) - Now uses real ProfileScreen
 @Composable
 fun UserProfileScreen(
     userId: String,
     onBackClick: () -> Unit
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("User Profile") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
-                    }
-                }
-            )
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
-        ) {
-            Text("User ID: $userId", style = MaterialTheme.typography.headlineMedium)
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Bio: This is a user bio")
-            Text("Posts: 24")
-            Text("Followers: 567")
-        }
-    }
+    // Convert string userId to Int
+    val userIdInt = userId.removePrefix("user_").toIntOrNull() ?: 1452
+
+    ProfileScreen(
+        userId = userIdInt,
+        onBackClick = onBackClick
+    )
 }
 
 // Settings Detail Screen
